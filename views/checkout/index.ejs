@@ -1,0 +1,240 @@
+<%- include('../partials/navigation') %>
+
+<div class="container my-5">
+    <h1 class="mb-4">Checkout</h1>
+
+    <% if (messages && messages.length > 0) { %>
+        <% messages.forEach(message => { %>
+            <div class="alert alert-<%= message.type === 'error' ? 'danger' : message.type %> alert-dismissible fade show" role="alert">
+                <%= message.text %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% }); %>
+    <% } %>
+
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Order Summary</span>
+                <span class="badge bg-primary rounded-pill"><%= cartItems.length %></span>
+            </h4>
+            <ul class="list-group mb-3">
+                <% cartItems.forEach(item => { %>
+                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                        <div>
+                            <h6 class="my-0"><%= item.name %></h6>
+                            <small class="text-muted">Quantity: <%= item.quantity %></small>
+                        </div>
+                        <span class="text-muted">$<%= (item.price * item.quantity).toFixed(2) %></span>
+                    </li>
+                <% }); %>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Subtotal</span>
+                    <span>$<%= subtotal.toFixed(2) %></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Tax (10%)</span>
+                    <span>$<%= tax.toFixed(2) %></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Shipping</span>
+                    <span>$<%= shipping.toFixed(2) %></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Total</strong>
+                    <strong>$<%= total.toFixed(2) %></strong>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Checkout Form -->
+        <div class="col-md-8 order-md-1">
+            <form action="/checkout" method="POST" id="checkoutForm" class="needs-validation" novalidate>
+                <h4 class="mb-3">Shipping Information</h4>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="firstName" name="shippingAddress[firstName]" required>
+                        <div class="invalid-feedback">
+                            First name is required.
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" name="shippingAddress[lastName]" required>
+                        <div class="invalid-feedback">
+                            Last name is required.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="shippingAddress[email]" required>
+                    <div class="invalid-feedback">
+                        Please enter a valid email address.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="street" class="form-label">Street Address</label>
+                    <input type="text" class="form-control" id="street" name="shippingAddress[street]" required>
+                    <div class="invalid-feedback">
+                        Please enter your street address.
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" class="form-control" id="city" name="shippingAddress[city]" required>
+                        <div class="invalid-feedback">
+                            City is required.
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="state" class="form-label">State/Province</label>
+                        <input type="text" class="form-control" id="state" name="shippingAddress[state]" required>
+                        <div class="invalid-feedback">
+                            State is required.
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="zip" class="form-label">ZIP/Postal Code</label>
+                        <input type="text" class="form-control" id="zip" name="shippingAddress[zip]" required>
+                        <div class="invalid-feedback">
+                            ZIP code is required.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" class="form-control" id="country" name="shippingAddress[country]" required>
+                    <div class="invalid-feedback">
+                        Country is required.
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h4 class="mb-3">Payment Method</h4>
+                <div class="mb-3">
+                    <div class="form-check mb-2">
+                        <input type="radio" class="form-check-input" id="credit_card" name="paymentMethod[type]" value="credit_card" required checked>
+                        <label class="form-check-label" for="credit_card">Credit Card</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="paypal" name="paymentMethod[type]" value="paypal" required>
+                        <label class="form-check-label" for="paypal">PayPal</label>
+                    </div>
+                </div>
+
+                <div id="creditCardFields">
+                    <div class="mb-3">
+                        <label for="cardName" class="form-label">Name on Card</label>
+                        <input type="text" class="form-control" id="cardName" name="paymentMethod[cardName]">
+                        <div class="invalid-feedback">
+                            Name on card is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label">Card Number</label>
+                        <input type="text" class="form-control" id="cardNumber" name="paymentMethod[cardNumber]">
+                        <div class="invalid-feedback">
+                            Valid credit card number is required.
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cardExpiry" class="form-label">Expiration</label>
+                            <input type="text" class="form-control" id="cardExpiry" name="paymentMethod[expiryDate]" placeholder="MM/YY">
+                            <div class="invalid-feedback">
+                                Expiration date is required.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cardCvv" class="form-label">CVV</label>
+                            <input type="text" class="form-control" id="cardCvv" name="paymentMethod[cvv]">
+                            <div class="invalid-feedback">
+                                Security code is required.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <button class="btn btn-primary btn-lg w-100" type="submit">Place Order</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                } else {
+                    // Remove spaces from card number before submission
+                    const cardNumberInput = document.getElementById('cardNumber');
+                    if (cardNumberInput) {
+                        cardNumberInput.value = cardNumberInput.value.replace(/\s/g, '');
+                    }
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
+// Toggle credit card fields based on payment method
+document.querySelectorAll('input[name="paymentMethod[type]"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const creditCardFields = document.getElementById('creditCardFields');
+        const inputs = creditCardFields.querySelectorAll('input');
+        
+        if (this.value === 'credit_card') {
+            creditCardFields.style.display = 'block';
+            inputs.forEach(input => input.required = true);
+        } else {
+            creditCardFields.style.display = 'none';
+            inputs.forEach(input => input.required = false);
+        }
+    });
+});
+
+// Format card number input
+document.getElementById('cardNumber').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.replace(/(.{4})/g, '$1 ').trim();
+    e.target.value = value;
+});
+
+// Format expiry date input
+document.getElementById('cardExpiry').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 2) {
+        value = value.slice(0,2) + '/' + value.slice(2,4);
+    }
+    e.target.value = value;
+});
+
+// Format CVV input
+document.getElementById('cardCvv').addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    e.target.value = value;
+});
+</script>
+
+<%- include('../partials/footer') %> 

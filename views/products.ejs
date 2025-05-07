@@ -1,0 +1,242 @@
+<div class="container py-5">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm" method="GET" action="/shop">
+                        <!-- Search -->
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                value="<%= filters.search %>" placeholder="Search products...">
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">All Categories</option>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category %>" 
+                                        <%= filters.category === category ? 'selected' : '' %>>
+                                        <%= category %>
+                                    </option>
+                                <% }); %>
+                            </select>
+                        </div>
+
+                        <!-- Scale Filter -->
+                        <div class="mb-3">
+                            <label for="scale" class="form-label">Scale</label>
+                            <select class="form-select" id="scale" name="scale">
+                                <option value="">All Scales</option>
+                                <% scales.forEach(scale => { %>
+                                    <option value="<%= scale %>" 
+                                        <%= filters.scale === scale ? 'selected' : '' %>>
+                                        <%= scale %>
+                                    </option>
+                                <% }); %>
+                            </select>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-3">
+                            <label for="maxPrice" class="form-label">Max Price</label>
+                            <input type="number" class="form-control" id="maxPrice" name="maxPrice" 
+                                value="<%= filters.maxPrice %>" min="0" step="10">
+                        </div>
+
+                        <!-- View Options -->
+                        <div class="mb-3">
+                            <label class="form-label">View</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="view" id="gridView" value="grid"
+                                    <%= view === 'grid' ? 'checked' : '' %>>
+                                <label class="btn btn-outline-secondary" for="gridView">
+                                    <i class="bi bi-grid"></i>
+                                </label>
+                                <input type="radio" class="btn-check" name="view" id="listView" value="list"
+                                    <%= view === 'list' ? 'checked' : '' %>>
+                                <label class="btn btn-outline-secondary" for="listView">
+                                    <i class="bi bi-list"></i>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div class="mb-3">
+                            <label for="sort" class="form-label">Sort By</label>
+                            <select class="form-select" id="sort" name="sort">
+                                <option value="name_asc" <%= sort === 'name_asc' ? 'selected' : '' %>>Name (A-Z)</option>
+                                <option value="name_desc" <%= sort === 'name_desc' ? 'selected' : '' %>>Name (Z-A)</option>
+                                <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Price (Low to High)</option>
+                                <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Price (High to Low)</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Products Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Products</h2>
+                <div>
+                    Showing <%= (pagination.page - 1) * pagination.limit + 1 %> - 
+                    <%= Math.min(pagination.page * pagination.limit, pagination.total) %> 
+                    of <%= pagination.total %> products
+                </div>
+            </div>
+
+            <!-- Products Grid/List -->
+            <div class="row <%= view === 'list' ? 'list-view' : '' %>">
+                <% products.forEach((product, index) => { %>
+                    <div class="<%= view === 'list' ? 'col-12 mb-4' : 'col-md-4 mb-4' %>">
+                        <div class="card h-100">
+                            <% const carImages = [
+  '/images/bugatti.jpg',
+  '/images/lambo.jpg',
+  '/images/porsche911.jpg',
+  '/images/ford.jpg',
+  '/images/gnx.jpg',
+  '/images/rarri.jpg',
+  '/images/porschegtr3.jpg',
+  '/images/porscheog.jpg',
+  '/images/suprayellow.jpg'
+]; %>
+<img src="<%= carImages[index % carImages.length] %>" class="card-img-top" alt="<%= product.productName %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= product.productName %></h5>
+                                <p class="card-text"><%= product.productDescription || 'No description available' %></p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 mb-0">$<%= parseFloat(product.buyPrice).toFixed(2) %></span>
+                                    <button class="btn btn-primary add-to-cart" 
+                                        data-product-id="<%= product.productCode %>">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+
+            <!-- Pagination -->
+            <% if (pagination.totalPages > 1) { %>
+                <nav aria-label="Product pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <% for(let i = 1; i <= pagination.totalPages; i++) { %>
+                            <li class="page-item <%= pagination.page === i ? 'active' : '' %>">
+                                <a class="page-link" href="/shop?page=<%= i %>&<%= new URLSearchParams(query).toString() %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Add to Cart Modal -->
+<div class="modal fade" id="addToCartModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add to Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" value="1" min="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAddToCart">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap modal
+    const addToCartModal = new bootstrap.Modal(document.getElementById('addToCartModal'));
+    let selectedProductId = null;
+
+    // Handle Add to Cart button clicks
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            selectedProductId = this.dataset.productId;
+            addToCartModal.show();
+        });
+    });
+
+    // Handle Add to Cart confirmation
+    document.getElementById('confirmAddToCart').addEventListener('click', async function() {
+        const quantity = document.getElementById('quantity').value;
+        
+        try {
+            const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    productCode: selectedProductId,
+                    quantity: parseInt(quantity)
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Show success message
+                alert('Product added to cart successfully!');
+                addToCartModal.hide();
+            } else {
+                throw new Error(data.message || 'Failed to add product to cart');
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    // Handle filter form submission
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const params = new URLSearchParams(formData);
+        window.location.href = `/shop?${params.toString()}`;
+    });
+});
+</script>
+
+<style>
+.list-view .card {
+    flex-direction: row;
+}
+
+.list-view .card-img-top {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
+
+.list-view .card-body {
+    flex: 1;
+}
+</style>
+
+<%- include('partials/footer') %>

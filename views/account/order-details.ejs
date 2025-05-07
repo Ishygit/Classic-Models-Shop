@@ -1,0 +1,366 @@
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0">Order Details</h1>
+        <div>
+            <a href="/account/orders" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> Back to Orders
+            </a>
+            <a href="/products" class="btn btn-primary">
+                <i class="bi bi-cart-plus"></i> Continue Shopping
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Order Summary -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="card-title mb-1">Order #<%= order.id %></h5>
+                            <p class="text-muted mb-0">Placed on <%= new Date(order.created_at).toLocaleDateString() %></p>
+                        </div>
+                        <span class="badge bg-<%= order.status === 'completed' ? 'success' : 
+                            (order.status === 'processing' ? 'warning' : 
+                            (order.status === 'shipped' ? 'info' : 'secondary')) %>">
+                            <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                        </span>
+                    </div>
+
+                    <!-- Expected Delivery Date -->
+                    <% if (order.expected_delivery_date) { %>
+                        <div class="mb-3">
+                            <h6 class="mb-1">Expected Delivery Date</h6>
+                            <p class="mb-0"><%= new Date(order.expected_delivery_date).toLocaleDateString() %></p>
+                        </div>
+                    <% } %>
+
+                    <!-- Order Notes -->
+                    <% if (order.notes) { %>
+                        <div class="mb-3">
+                            <h6 class="mb-1">Order Notes</h6>
+                            <p class="mb-0"><%= order.notes %></p>
+                        </div>
+                    <% } %>
+
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.items.forEach(item => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="<%= item.image %>" alt="<%= item.name %>" class="img-thumbnail me-3" style="width: 64px; height: 64px; object-fit: contain;">
+                                                <div>
+                                                    <h6 class="mb-0"><%= item.name %></h6>
+                                                    <small class="text-muted">SKU: <%= item.product_code %></small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center"><%= item.quantity %></td>
+                                        <td class="text-end">$<%= item.price.toFixed(2) %></td>
+                                        <td class="text-end">$<%= (item.price * item.quantity).toFixed(2) %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Actions -->
+            <% if (['pending', 'processing'].includes(order.status)) { %>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Order Actions</h5>
+                        
+                        <!-- Modify Order Button -->
+                        <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#modifyOrderModal">
+                            <i class="bi bi-pencil"></i> Modify Order
+                        </button>
+
+                        <!-- Cancel Order Button -->
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                            <i class="bi bi-x-circle"></i> Cancel Order
+                        </button>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Order Information -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Order Summary</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>$<%= order.subtotal.toFixed(2) %></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax</span>
+                        <span>$<%= order.tax.toFixed(2) %></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Shipping</span>
+                        <span>$<%= order.shipping.toFixed(2) %></span>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total</span>
+                        <span>$<%= order.total.toFixed(2) %></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Shipping Address</h5>
+                    <address class="mb-0">
+                        <%= order.shipping_address.firstName %> <%= order.shipping_address.lastName %><br>
+                        <%= order.shipping_address.street %><br>
+                        <%= order.shipping_address.city %>, <%= order.shipping_address.state %> <%= order.shipping_address.zip %><br>
+                        <%= order.shipping_address.country %>
+                    </address>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Payment Method</h5>
+                    <p class="mb-0">
+                        <i class="bi bi-credit-card me-2"></i>
+                        <%= order.payment_method.card_type %> ending in <%= order.payment_method.last4 %>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Order Tracking -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Order Tracking</h5>
+                    <div class="tracking-timeline">
+                        <% order.tracking.forEach((track, index) => { %>
+                            <div class="tracking-item <%= index === order.tracking.length - 1 ? 'active' : '' %>">
+                                <div class="tracking-icon">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div class="tracking-content">
+                                    <div class="tracking-date">
+                                        <%= new Date(track.created_at).toLocaleString() %>
+                                    </div>
+                                    <div class="tracking-status">
+                                        <%= track.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+                                    </div>
+                                    <% if (track.location) { %>
+                                        <div class="tracking-location">
+                                            <i class="bi bi-geo-alt"></i> <%= track.location %>
+                                        </div>
+                                    <% } %>
+                                    <% if (track.description) { %>
+                                        <div class="tracking-description">
+                                            <%= track.description %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modify Order Modal -->
+<div class="modal fade" id="modifyOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modify Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modifyOrderForm">
+                    <div class="mb-3">
+                        <label for="expectedDeliveryDate" class="form-label">Expected Delivery Date</label>
+                        <input type="date" class="form-control" id="expectedDeliveryDate" 
+                               value="<%= order.expected_delivery_date ? new Date(order.expected_delivery_date).toISOString().split('T')[0] : '' %>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderNotes" class="form-label">Order Notes</label>
+                        <textarea class="form-control" id="orderNotes" rows="3"><%= order.notes || '' %></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modificationReason" class="form-label">Reason for Modification</label>
+                        <input type="text" class="form-control" id="modificationReason" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveModifications">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cancelOrderForm">
+                    <div class="mb-3">
+                        <label for="cancellationReason" class="form-label">Reason for Cancellation</label>
+                        <textarea class="form-control" id="cancellationReason" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="confirmCancellation">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle order modification
+    document.getElementById('saveModifications').addEventListener('click', async function() {
+        const formData = {
+            expected_delivery_date: document.getElementById('expectedDeliveryDate').value,
+            notes: document.getElementById('orderNotes').value,
+            modificationReason: document.getElementById('modificationReason').value
+        };
+
+        try {
+            const response = await fetch(`/api/orders/<%= order.id %>`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                alert(data.message || 'Error updating order');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error updating order');
+        }
+    });
+
+    // Handle order cancellation
+    document.getElementById('confirmCancellation').addEventListener('click', async function() {
+        const reason = document.getElementById('cancellationReason').value;
+
+        try {
+            const response = await fetch(`/api/orders/<%= order.id %>/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                alert(data.message || 'Error cancelling order');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error cancelling order');
+        }
+    });
+});
+</script>
+
+<style>
+.tracking-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.tracking-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.tracking-item {
+    position: relative;
+    padding-bottom: 25px;
+}
+
+.tracking-item:last-child {
+    padding-bottom: 0;
+}
+
+.tracking-icon {
+    position: absolute;
+    left: -30px;
+    width: 16px;
+    height: 16px;
+    background: white;
+}
+
+.tracking-icon i {
+    font-size: 16px;
+    color: #adb5bd;
+}
+
+.tracking-item.active .tracking-icon i {
+    color: #28a745;
+}
+
+.tracking-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.tracking-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.tracking-status {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.tracking-location {
+    font-size: 0.875rem;
+    margin-bottom: 5px;
+}
+
+.tracking-description {
+    color: #6c757d;
+}
+</style> 

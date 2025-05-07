@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+*.env
+
+# Logs
+npm-debug.log
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# SQL files and database dumps
+classicModelsDB.sql
+sql/
+
+# Scripts (local setup/debug only)
+scripts/
+
+# Public assets (optional: comment out if you want to keep images in repo)
+# public/images/
+
+# Misc
+coverage/
+build/
+dist/ 

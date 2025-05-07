@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice #<%= order.orderId %> | Classic Models Shop</title>
+    <style>
+        /* Regular styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .invoice-header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .company-info {
+            float: left;
+        }
+
+        .invoice-info {
+            float: right;
+            text-align: right;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .invoice-to {
+            margin-bottom: 30px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .items-table th,
+        .items-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .items-table th {
+            background-color: #f5f5f5;
+        }
+
+        .total-section {
+            float: right;
+            width: 300px;
+        }
+
+        .total-row {
+            padding: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .total-row.final {
+            font-weight: bold;
+            font-size: 1.2em;
+            border-top: 2px solid #333;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            .back-button {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .invoice-container {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.location.href='/account/dashboard'" class="back-button">
+        Back to Dashboard
+    </button>
+
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div class="company-info">
+                <h1>Classic Models Shop</h1>
+                <p>123 Model Street<br>
+                   Modeltown, MT 12345<br>
+                   Phone: (555) 123-4567<br>
+                   Email: sales@classicmodels.com</p>
+            </div>
+            <div class="invoice-info">
+                <h2>INVOICE</h2>
+                <p>
+                    Invoice #: <%= order.orderId %><br>
+                    Date: <%= new Date(order.orderDate).toLocaleDateString() %><br>
+                    Status: <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                </p>
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="invoice-to">
+            <h3>Bill To:</h3>
+            <p>
+                <%= order.shippingAddress.firstName %> <%= order.shippingAddress.lastName %><br>
+                <%= order.shippingAddress.street %><br>
+                <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> <%= order.shippingAddress.zip %><br>
+                <%= order.shippingAddress.country %><br>
+                Email: <%= order.shippingAddress.email %>
+            </p>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Scale</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% order.items.forEach(item => { %>
+                    <tr>
+                        <td><%= item.productName %></td>
+                        <td><%= item.scale %></td>
+                        <td><%= item.quantity %></td>
+                        <td>$<%= item.price.toFixed(2) %></td>
+                        <td>$<%= (item.price * item.quantity).toFixed(2) %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span>$<%= order.subtotal.toFixed(2) %></span>
+            </div>
+            <div class="total-row">
+                <span>Tax (10%):</span>
+                <span>$<%= order.tax.toFixed(2) %></span>
+            </div>
+            <div class="total-row">
+                <span>Shipping:</span>
+                <span>$<%= order.shipping.toFixed(2) %></span>
+            </div>
+            <div class="total-row final">
+                <span>Total:</span>
+                <span>$<%= order.total.toFixed(2) %></span>
+            </div>
+        </div>
+        <div class="clear"></div>
+
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>If you have any questions about this invoice, please contact<br>
+               customer service at support@classicmodels.com</p>
+        </div>
+    </div>
+</body>
+</html> 

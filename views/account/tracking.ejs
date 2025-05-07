@@ -1,0 +1,147 @@
+<%- include('../partials/header') %>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">Order Tracking</h2>
+                        <span class="badge bg-<%= 
+                            order.status === 'delivered' ? 'success' : 
+                            (order.status === 'processing' ? 'warning' : 
+                            (order.status === 'shipped' ? 'info' : 'secondary')) 
+                        %>">
+                            <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                        </span>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Order Details</h5>
+                            <p class="mb-1">Order #: <%= order.id %></p>
+                            <p class="mb-1">Date: <%= new Date(order.created_at).toLocaleDateString() %></p>
+                            <p class="mb-1">Total: $<%= order.total.toFixed(2) %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Shipping Address</h5>
+                            <p class="mb-1"><%= order.shipping_address.firstName %> <%= order.shipping_address.lastName %></p>
+                            <p class="mb-1"><%= order.shipping_address.street %></p>
+                            <p class="mb-1"><%= order.shipping_address.city %>, <%= order.shipping_address.state %> <%= order.shipping_address.zip %></p>
+                            <p class="mb-1"><%= order.shipping_address.country %></p>
+                        </div>
+                    </div>
+
+                    <!-- Tracking Timeline -->
+                    <h5 class="mb-4">Tracking History</h5>
+                    <div class="tracking-timeline">
+                        <% tracking.forEach((status, index) => { %>
+                            <div class="tracking-item <%= index === tracking.length - 1 ? 'active' : '' %>">
+                                <div class="tracking-icon">
+                                    <i class="bi bi-circle-fill"></i>
+                                </div>
+                                <div class="tracking-content">
+                                    <div class="tracking-date">
+                                        <%= new Date(status.created_at).toLocaleString() %>
+                                    </div>
+                                    <div class="tracking-status">
+                                        <%= status.status.charAt(0).toUpperCase() + status.status.slice(1).replace(/_/g, ' ') %>
+                                    </div>
+                                    <div class="tracking-location text-muted">
+                                        <%= status.location %>
+                                    </div>
+                                    <div class="tracking-description">
+                                        <%= status.description %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-4">
+                <a href="/account/orders" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Orders
+                </a>
+                <a href="/account/orders/<%= order.id %>" class="btn btn-primary">
+                    <i class="bi bi-eye"></i> View Order Details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.tracking-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.tracking-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.tracking-item {
+    position: relative;
+    padding-bottom: 25px;
+}
+
+.tracking-item:last-child {
+    padding-bottom: 0;
+}
+
+.tracking-icon {
+    position: absolute;
+    left: -30px;
+    width: 16px;
+    height: 16px;
+    background: white;
+}
+
+.tracking-icon i {
+    font-size: 16px;
+    color: #adb5bd;
+}
+
+.tracking-item.active .tracking-icon i {
+    color: #28a745;
+}
+
+.tracking-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.tracking-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.tracking-status {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.tracking-location {
+    font-size: 0.875rem;
+    margin-bottom: 5px;
+}
+
+.tracking-description {
+    color: #6c757d;
+}
+</style>
+
+<%- include('../partials/footer') %> 

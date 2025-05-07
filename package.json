@@ -1,0 +1,36 @@
+{
+  "name": "classicmodelshop",
+  "version": "1.0.0",
+  "description": "Classic Models Shop - An e-commerce platform for model cars",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecommerce",
+    "model cars",
+    "express",
+    "mysql"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-mysql-session": "^3.0.0",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.0.1",
+    "joi": "^17.12.2",
+    "mysql2": "^3.9.1",
+    "nodemailer": "^6.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
